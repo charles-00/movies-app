@@ -1,0 +1,104 @@
+import { useEffect, useState } from "react";
+import { useDebounce } from "react-use";
+import axios from "axios";
+import "./App.css";
+import { getTrendingMovies, updateSearchCount } from "./appwrite";
+import TrendingMovies from "./components/TrendingMovies";
+import Header from "./components/Header";
+import Movies from "./components/Movies";
+
+const API_BASE_URL = "https://api.themoviedb.org/3";
+const API_OPTIONS = {
+  headers: {
+    Authorization: `Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIwOTkxOTllYTY4YjFhNzNmMjczZWUzNzcwNGI5ZjI4OCIsIm5iZiI6MTc0NzgyNzM4My41MTcsInN1YiI6IjY4MmRiYWI3NzUyNzQ4MjRjMmUyNTY3OSIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.r2jTp78FdKJPPz2jlF5-N26vNO9IpmWkEJuLdGsb0PQ`,
+    Accept: "application/json",
+  },
+  params: {
+    include_adult: true,
+    page: 1,
+  },
+};
+
+function App() {
+  const [searchTerm, setSearchTerm] = useState("");
+  const [debounceSearchTerm, setDebounceSearchTerm] = useState("");
+
+  const [movies, setMovies] = useState([]);
+  const [errorMessage, setErrorMessage] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const [trendingdMovies, setTrendingdMovies] = useState([]);
+  const [isTrendingLoading, setIsTrendingLoading] = useState(false);
+  const [errorMessageTrending, setErrorMessageTrending] = useState(null);
+
+  const fetchMovies = (query = "") => {
+    let url =
+      query == ""
+        ? `${API_BASE_URL}/discover/movie`
+        : `${API_BASE_URL}/search/movie?query=${query}`;
+    setIsLoading(true);
+    setErrorMessage("");
+    axios
+      .get(url, API_OPTIONS)
+      .then((res) => {
+        setMovies(res.data.results);
+        if (query && res.data.results.length > 0) {
+          updateSearchCount(query, res.data.results[0]);
+          console.log(res.data.results[0].id);
+        }
+      })
+      .catch(() => {
+        setErrorMessage("Failed To Load Movies, Please try Later");
+      })
+      .finally(() => setIsLoading(false));
+  };
+
+  const loadTrendingMovies = async () => {
+    setIsTrendingLoading(true);
+    try {
+      const movies = await getTrendingMovies();
+      setTrendingdMovies(movies);
+      setIsTrendingLoading(false);
+    } catch (error) {
+      setErrorMessageTrending(error.message);
+    } finally {
+      setIsTrendingLoading(false);
+    }
+  };
+
+  useDebounce(() => setDebounceSearchTerm(searchTerm), 500, [searchTerm]);
+  // Fetch movies whenever search changes
+  useEffect(() => {
+    fetchMovies(debounceSearchTerm);
+  }, [debounceSearchTerm]);
+
+  useEffect(() => {
+    loadTrendingMovies();
+  }, []);
+
+  return (
+    <main>
+      <div className="pattern" />
+      <div className="wrapper">
+        <Header searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
+
+        {trendingdMovies && trendingdMovies.length > 0 && (
+          <TrendingMovies
+            trendingdMovies={trendingdMovies}
+            isTrendingLoading={isTrendingLoading}
+            errorMessageTrending={errorMessageTrending}
+          />
+        )}
+        {movies && movies.length > 0 && (
+          <Movies
+            movies={movies}
+            errorMessage={errorMessage}
+            isLoading={isLoading}
+          />
+        )}
+      </div>
+    </main>
+  );
+}
+
+export default App;
