@@ -1,7 +1,16 @@
 import React from "react";
+import { ar } from "zod/locales";
 
 const MovieCard = ({
-  movie: { title, vote_average, release_date, poster_path, original_language },
+  movie: {
+    title,
+    vote_average,
+    release_date,
+    poster_path,
+    original_language,
+    genre_ids,
+  },
+  genres,
 }) => {
   return (
     <div className="movie-card">
@@ -26,6 +35,22 @@ const MovieCard = ({
           <p className="year">
             {release_date ? release_date.split("-")[0] : "N/A"}
           </p>
+        </div>
+        <div className="mt-3">
+          {genres
+            .filter((genre) => genre_ids.includes(genre.id)) //return array with genres related to this movie
+            .map(
+              (
+                genre,
+                index,
+                arr //mapping trought that filterd genres from movies maybe are 2,3 or 1..
+              ) => (
+                // rendering the genre related to that movie
+                <span key={index} className="text-white text-sm font-bold">
+                  {genre.name} {index != arr.length - 1 && " • "}
+                </span>
+              )
+            )}
         </div>
       </div>
     </div>

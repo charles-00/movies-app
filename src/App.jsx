@@ -6,6 +6,7 @@ import { getTrendingMovies, updateSearchCount } from "./appwrite";
 import TrendingMovies from "./components/TrendingMovies";
 import Header from "./components/Header";
 import Movies from "./components/Movies";
+import Genres from "./components/Genres";
 
 const API_BASE_URL = "https://api.themoviedb.org/3";
 const API_OPTIONS = {
@@ -21,6 +22,7 @@ const API_OPTIONS = {
 
 function App() {
   const [searchTerm, setSearchTerm] = useState("");
+  const [selectedGenre, setSelectedGenre] = useState("");
   const [debounceSearchTerm, setDebounceSearchTerm] = useState("");
 
   const [movies, setMovies] = useState([]);
@@ -30,6 +32,9 @@ function App() {
   const [trendingdMovies, setTrendingdMovies] = useState([]);
   const [isTrendingLoading, setIsTrendingLoading] = useState(false);
   const [errorMessageTrending, setErrorMessageTrending] = useState(null);
+
+  const [genres, setGenres] = useState([]);
+  const [filteredMovies, setFilteredMovies] = useState([]);
 
   const fetchMovies = (query = "") => {
     let url =
@@ -42,15 +47,27 @@ function App() {
       .get(url, API_OPTIONS)
       .then((res) => {
         setMovies(res.data.results);
+        if (selectedGenre && selectedGenre != "") {
+          loadFilteredMovies();
+        }
         if (query && res.data.results.length > 0) {
           updateSearchCount(query, res.data.results[0]);
-          console.log(res.data.results[0].id);
         }
       })
       .catch(() => {
         setErrorMessage("Failed To Load Movies, Please try Later");
       })
       .finally(() => setIsLoading(false));
+  };
+
+  const fetchGenres = () => {
+    const genresEndPoint = `${API_BASE_URL}/genre/movie/list?language=en`;
+    axios
+      .get(genresEndPoint, { ...API_OPTIONS, params: {} })
+      .then(({ data }) => {
+        console.log(data.genres);
+        setGenres(data.genres);
+      });
   };
 
   const loadTrendingMovies = async () => {
@@ -66,6 +83,13 @@ function App() {
     }
   };
 
+  const loadFilteredMovies = () => {
+    const filteredMovies = movies.filter((movie) =>
+      movie.genre_ids.includes(Number(selectedGenre))
+    );
+    setFilteredMovies(filteredMovies);
+  };
+
   useDebounce(() => setDebounceSearchTerm(searchTerm), 500, [searchTerm]);
   // Fetch movies whenever search changes
   useEffect(() => {
@@ -73,8 +97,13 @@ function App() {
   }, [debounceSearchTerm]);
 
   useEffect(() => {
+    fetchGenres();
     loadTrendingMovies();
   }, []);
+
+  useEffect(() => {
+    loadFilteredMovies();
+  }, [selectedGenre]);
 
   return (
     <main>
@@ -91,9 +120,11 @@ function App() {
         )}
         {movies && movies.length > 0 && (
           <Movies
-            movies={movies}
+            movies={selectedGenre ? filteredMovies : movies}
             errorMessage={errorMessage}
             isLoading={isLoading}
+            genres={genres}
+            setSelectedGenre={setSelectedGenre}
           />
         )}
       </div>
