@@ -36,6 +36,8 @@ function App() {
   const [genres, setGenres] = useState([]);
   const [filteredMovies, setFilteredMovies] = useState([]);
 
+  const [watchListMovies, setWatchListMovies] = useState([]);
+
   const fetchMovies = (query = "") => {
     let url =
       query == ""
@@ -90,6 +92,13 @@ function App() {
     setFilteredMovies(filteredMovies);
   };
 
+  const addMovieToWatchList = (movie) => {
+    if (!watchListMovies.find((m) => m == movie.id)) {
+      setWatchListMovies([...watchListMovies, movie.id]);
+      console.log(watchListMovies);
+    }
+  };
+
   useDebounce(() => setDebounceSearchTerm(searchTerm), 500, [searchTerm]);
   // Fetch movies whenever search changes
   useEffect(() => {
@@ -108,8 +117,12 @@ function App() {
   return (
     <main>
       <div className="pattern" />
-      <div className="wrapper">
-        <Header searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
+      <div className="wrapper pt-0">
+        <Header
+          searchTerm={searchTerm}
+          setSearchTerm={setSearchTerm}
+          watchListMovies={watchListMovies}
+        />
 
         {trendingdMovies && trendingdMovies.length > 0 && (
           <TrendingMovies
@@ -118,6 +131,7 @@ function App() {
             errorMessageTrending={errorMessageTrending}
           />
         )}
+
         {movies && movies.length > 0 && (
           <Movies
             movies={selectedGenre ? filteredMovies : movies}
@@ -125,6 +139,10 @@ function App() {
             isLoading={isLoading}
             genres={genres}
             setSelectedGenre={setSelectedGenre}
+            addMovieToWatchList={addMovieToWatchList}
+            watchListMovies={watchListMovies}
+            searchTerm={searchTerm}
+            setSearchTerm={setSearchTerm}
           />
         )}
       </div>

@@ -1,6 +1,3 @@
-import React from "react";
-import { ar } from "zod/locales";
-
 const MovieCard = ({
   movie: {
     title,
@@ -10,7 +7,10 @@ const MovieCard = ({
     original_language,
     genre_ids,
   },
+  movie,
   genres,
+  addMovieToWatchList,
+  watchListMovies,
 }) => {
   return (
     <div className="movie-card">
@@ -52,6 +52,12 @@ const MovieCard = ({
               )
             )}
         </div>
+        <button
+          className="text-dark-100 font-bold cursor-pointe bg-purple-200 mt-4 px-4 py-1 rounded-lg cursor-pointer"
+          onClick={() => addMovieToWatchList(movie)}
+        >
+          {watchListMovies.includes(movie.id) ? "Added" : "Add WatchList"}
+        </button>
       </div>
     </div>
   );

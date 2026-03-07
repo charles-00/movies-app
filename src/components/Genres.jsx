@@ -2,7 +2,7 @@ import React from "react";
 
 const Genres = ({ genres, setSelectedGenre }) => {
   return (
-    <div className="search w-[100%] m-0 mb-5">
+    <div className="search w-[100%] m-0 ">
       <div>
         <select name="genre" onChange={(e) => setSelectedGenre(e.target.value)}>
           <option value="">Select Your Favorite Genre</option>
