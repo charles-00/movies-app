@@ -56,7 +56,7 @@ const MovieCard = ({
           className="text-dark-100 font-bold cursor-pointe bg-purple-200 mt-4 px-4 py-1 rounded-lg cursor-pointer"
           onClick={() => addMovieToWatchList(movie)}
         >
-          {watchListMovies.includes(movie.id) ? "Added" : "Add WatchList"}
+          {movie.isAddedToWatchList ? "Added" : "Add WatchList"}
         </button>
       </div>
     </div>

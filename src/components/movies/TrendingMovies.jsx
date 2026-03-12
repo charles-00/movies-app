@@ -1,5 +1,5 @@
 import TrendingMovie from "./TrendingMovie";
-import Spinner from "./Spinner";
+import Spinner from "../Spinner";
 
 const TrendingMovies = ({
   trendingdMovies,

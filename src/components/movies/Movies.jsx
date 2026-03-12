@@ -1,7 +1,7 @@
-import Spinner from "./Spinner";
+import Spinner from "../Spinner";
 import MovieCard from "./MovieCard";
-import Genres from "./Genres";
-import Search from "./Search";
+import Genres from "../Genres";
+import Search from "../Search";
 
 const Movies = ({
   errorMessage,

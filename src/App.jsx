@@ -3,10 +3,11 @@ import { useDebounce } from "react-use";
 import axios from "axios";
 import "./App.css";
 import { getTrendingMovies, updateSearchCount } from "./appwrite";
-import TrendingMovies from "./components/TrendingMovies";
+import TrendingMovies from "./components/movies/TrendingMovies";
 import Header from "./components/Header";
-import Movies from "./components/Movies";
+import Movies from "./components/movies/Movies";
 import Genres from "./components/Genres";
+import NavBar from "./components/NavBar";
 
 const API_BASE_URL = "https://api.themoviedb.org/3";
 const API_OPTIONS = {
@@ -67,7 +68,6 @@ function App() {
     axios
       .get(genresEndPoint, { ...API_OPTIONS, params: {} })
       .then(({ data }) => {
-        console.log(data.genres);
         setGenres(data.genres);
       });
   };
@@ -93,9 +93,13 @@ function App() {
   };
 
   const addMovieToWatchList = (movie) => {
-    if (!watchListMovies.find((m) => m == movie.id)) {
-      setWatchListMovies([...watchListMovies, movie.id]);
-      console.log(watchListMovies);
+    if (!watchListMovies.find((m) => m.id == movie.id)) {
+      setWatchListMovies([...watchListMovies, movie]);
+      setMovies(
+        movies.map((m) =>
+          m.id == movie.id ? { ...m, isAddedToWatchList: true } : m
+        )
+      );
     }
   };
 
@@ -116,13 +120,10 @@ function App() {
 
   return (
     <main>
+      <NavBar watchListMovies={watchListMovies} />
       <div className="pattern" />
       <div className="wrapper pt-0">
-        <Header
-          searchTerm={searchTerm}
-          setSearchTerm={setSearchTerm}
-          watchListMovies={watchListMovies}
-        />
+        <Header searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
 
         {trendingdMovies && trendingdMovies.length > 0 && (
           <TrendingMovies

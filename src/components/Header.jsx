@@ -1,10 +1,9 @@
 import NavBar from "./NavBar";
 import Search from "./Search";
 
-const Header = ({ watchListMovies }) => {
+const Header = () => {
   return (
     <>
-      <NavBar watchListMovies={watchListMovies} />
       <header>
         <img src="./hero.png" alt="Hero Banner" />
         <h1>
